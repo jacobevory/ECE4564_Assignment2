@@ -15,7 +15,7 @@ def msgConsume(ch, method, properties, body):
     client.send(body)
           
           
-RMQserv = '127.0.0.1'
+RMQserv = '192.168.1.19'
 MDBport = 27017
 RMQport = 5672
 btMAC = 'F8:CF:C5:D1:4F:3E' #MAC Address of Jacob's cellular device with bluetooth capability
@@ -27,18 +27,18 @@ size = 1024
 
 
 if len(sys.argv) > 1:
-    if (sys.argv[1] == '-s'):    serv = int(sys.argv[2])
+    if (sys.argv[1] == '-s'):   RMQserv = sys.argv[2]
     
 mongodb = pymongo.MongoClient()[rmq_params['exchange']]
 for q in rmq_params['queues']:
     col = mongodb[q]
-    col.drop()
+    #col.drop()
 
 print("[Checkpoint 01] Connected to database ", rmq_params['exchange'], " on MongoDB server localhost")
 
 creds = pika.PlainCredentials(rmq_params['username'],
                               rmq_params['password'])
-connectparams = pika.ConnectionParameters(host=sys.argv[2],
+connectparams = pika.ConnectionParameters(host=RMQServ,
     virtual_host=rmq_params['vhost'],
     credentials=creds)
 connection = pika.BlockingConnection(connectparams)
@@ -67,9 +67,9 @@ try:
     print("[Checkpoint p-02] Message: green")
     # checkpoint 05 sending exchange and queue names
     # send the exchange and queue names to bluetooth device
-    client.send("Communicating on exchange: ", rmp_params['exchange'])
+    client.send("Communicating on exchange: ", rmq_params['exchange'])
     client.send("Available queues:")
-    for n in rmq_params['queues']
+    for n in rmq_params['queues']:
         client.send(n)
 
     # if received command
@@ -79,7 +79,7 @@ try:
         print("[Checkpoint 06] ", data)
         command = data[2]
         data[3] = ' '
-        backSlash = data.find('\')
+        backSlash = data.find('\\')
         data[backSlash] = ' '
         dataList = data.split(' ')
         q = dataList[1]
@@ -87,9 +87,9 @@ try:
 
         # if command is p
         # check if queue is correct and queue is not master or status
-        if (command == 'p')
+        if (command == 'p'):
             command == ' '
-            if (q != "master_queue" && q != "status_queue")
+            if (q != "master_queue" and q != "status_queue"):
 
                 chan.basic_publish(exchange=rmq_params['exchange'],
                     routing_key=rmq_params['status_queue'],
@@ -109,9 +109,9 @@ try:
                 col=mongodb[q]
                 col.insert(doc)
 
-        if (command == 'c')
+        if (command == 'c'):
             command == ' '
-            if (q != "master_queue" && q != "status_queue")
+            if (q != "master_queue" and q != "status_queue"):
 
                 # if command is c
                 # check if queue is correct and queue is not master or status
@@ -132,9 +132,9 @@ try:
                 col=mongodb[q]
                 col.insert(doc)
 
-        if (command == 'h')
+        if (command == 'h'):
             command == ' '
-            if (q != "master_queue" && q != "status_queue")
+            if (q != "master_queue" and q != "status_queue"):
                 print("[Checkpoint h-01] Printing history of Collection '", q ,"' in MongoDB database '", rmq_params['exchange'], "'")
                 print("[Checkpoint h-02] Collection: ", q)
                 collection = mongodb[q]
