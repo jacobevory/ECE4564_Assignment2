@@ -32,13 +32,13 @@ if len(sys.argv) > 1:
 mongodb = pymongo.MongoClient()[rmq_params['exchange']]
 for q in rmq_params['queues']:
     col = mongodb[q]
-    #col.drop()
+    col.drop()
 
 print("[Checkpoint 01] Connected to database ", rmq_params['exchange'], " on MongoDB server localhost")
 
 creds = pika.PlainCredentials(rmq_params['username'],
                               rmq_params['password'])
-connectparams = pika.ConnectionParameters(host=RMQServ,
+connectparams = pika.ConnectionParameters(host=RMQserv,
     virtual_host=rmq_params['vhost'],
     credentials=creds)
 connection = pika.BlockingConnection(connectparams)
