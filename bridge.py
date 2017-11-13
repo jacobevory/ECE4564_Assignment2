@@ -71,96 +71,97 @@ try:
     client.send("Available queues:")
     for n in rmq_params['queues']:
         client.send(n)
-
-    # if received command
-    # checkpoint 06 received rfcomm bluetooth data: command
-    while 1:
-        data = client.recv(size)
-        print("[Checkpoint 06] ", data)
-        command = data[2]
-        data[3] = ' '
-        backSlash = data.find('\\')
-        data[backSlash] = ' '
-        dataList = data.split(' ')
-        q = dataList[1]
-        msg = dataList[2]
-
-        # if command is p
-        # check if queue is correct and queue is not master or status
-        if (command == 'p'):
-            command == ' '
-            if (q != "master_queue" and q != "status_queue"):
-
-                chan.basic_publish(exchange=rmq_params['exchange'],
-                    routing_key=rmq_params['status_queue'],
-                    body='purple')
-                print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
-                print("[Checkpoint p-02] Message: purple")
-                chan.basic_publish(exchange=rmq_params['exchange'],
-                    routing_key=q,
-                    body=msg)
-                print("[Checkpoint p-01] Published message with routing_key: ", q)
-                print("[Checkpoint p-02] Message: ", msg)
-
-                # publish message
-                # store document in mongodb
-                msgid = "26$" + time.time()
-                doc = {"Action": "p", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": q, "Message": msg}
-                col=mongodb[q]
-                col.insert(doc)
-
-        if (command == 'c'):
-            command == ' '
-            if (q != "master_queue" and q != "status_queue"):
-
-                # if command is c
-                # check if queue is correct and queue is not master or status
-                chan.basic_publish(exchange=rmq_params['exchange'],
-                    routing_key=rmq_params['status_queue'],
-                    body='yellow')
-                print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
-                print("[Checkpoint p-02] Message: yellow")
-                chan.basic_consume(msgConsume, queue = q)
-
-                # consume message from queue
-                # store document in mongodb
-                msgid = "26$" + time.time()
-                # doc = {"Action": "p", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": queue, "Message": message}
-
-                msgid = "26$" + time.time()
-                doc = {"Action": "c", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": q, "Message": ''}
-                col=mongodb[q]
-                col.insert(doc)
-
-        if (command == 'h'):
-            command == ' '
-            if (q != "master_queue" and q != "status_queue"):
-                print("[Checkpoint h-01] Printing history of Collection '", q ,"' in MongoDB database '", rmq_params['exchange'], "'")
-                print("[Checkpoint h-02] Collection: ", q)
-                collection = mongodb[q]
-                cur = collection.find({})
-                for document in cur:
-                    print(document)
-                # if command is h
-                # check if queue is correct and queue is not master or status
-                chan.basic_publish(exchange=rmq_params['exchange'],
-                                   routing_key=rmq_params['status_queue'],
-                                   body='blue')
-                print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
-                print("[Checkpoint p-02] Message: blue")
-                # print history of commands for queue
-
-    # if disconnected
 except:
     print("Error occured, closing Socket")
     client.close()
     s.close()
-    print("[Checkpoint 07] RFCOMM Bluetooth client disconnected.")
-    chan.basic_publish(exchange=rmq_params['exchange'],
+    break
+    # if received command
+    # checkpoint 06 received rfcomm bluetooth data: command
+while 1:
+    data = client.recv(size)
+    print("[Checkpoint 06] ", data)
+    command = data[2]
+    data[3] = ' '
+    backSlash = data.find('\\')
+    data[backSlash] = ' '
+    dataList = data.split(' ')
+    q = dataList[1]
+    msg = dataList[2]
+
+    # if command is p
+    # check if queue is correct and queue is not master or status
+    if (command == 'p'):
+        command == ' '
+        if (q != "master_queue" and q != "status_queue"):
+
+            chan.basic_publish(exchange=rmq_params['exchange'],
+                routing_key=rmq_params['status_queue'],
+                body='purple')
+            print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
+            print("[Checkpoint p-02] Message: purple")
+            chan.basic_publish(exchange=rmq_params['exchange'],
+                routing_key=q,
+                body=msg)
+            print("[Checkpoint p-01] Published message with routing_key: ", q)
+            print("[Checkpoint p-02] Message: ", msg)
+
+            # publish message
+            # store document in mongodb
+            msgid = "26$" + time.time()
+            doc = {"Action": "p", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": q, "Message": msg}
+            col=mongodb[q]
+            col.insert(doc)
+
+    if (command == 'c'):
+        command == ' '
+        if (q != "master_queue" and q != "status_queue"):
+
+            # if command is c
+            # check if queue is correct and queue is not master or status
+            chan.basic_publish(exchange=rmq_params['exchange'],
+                routing_key=rmq_params['status_queue'],
+                body='yellow')
+            print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
+            print("[Checkpoint p-02] Message: yellow")
+            chan.basic_consume(msgConsume, queue = q)
+
+            # consume message from queue
+            # store document in mongodb
+            msgid = "26$" + time.time()
+            # doc = {"Action": "p", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": queue, "Message": message}
+
+            msgid = "26$" + time.time()
+            doc = {"Action": "c", "Place": rmq_params['exchange'], "MsgID": msgid, "Subject": q, "Message": ''}
+            col=mongodb[q]
+            col.insert(doc)
+
+    if (command == 'h'):
+        command == ' '
+        if (q != "master_queue" and q != "status_queue"):
+            print("[Checkpoint h-01] Printing history of Collection '", q ,"' in MongoDB database '", rmq_params['exchange'], "'")
+            print("[Checkpoint h-02] Collection: ", q)
+            collection = mongodb[q]
+            cur = collection.find({})
+            for document in cur:
+                print(document)
+            # if command is h
+            # check if queue is correct and queue is not master or status
+            chan.basic_publish(exchange=rmq_params['exchange'],
+                               routing_key=rmq_params['status_queue'],
+                               body='blue')
+            print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
+            print("[Checkpoint p-02] Message: blue")
+            # print history of commands for queue
+
+    # if disconnected
+
+print("[Checkpoint 07] RFCOMM Bluetooth client disconnected.")
+chan.basic_publish(exchange=rmq_params['exchange'],
                        routing_key=rmq_params['status_queue'],
                        body='red')
-    print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
-    print("[Checkpoint p-02] Message: red")
+print("[Checkpoint p-01] Published message with routing_key: ", rmq_params['status_queue'])
+print("[Checkpoint p-02] Message: red")
 
                           
                           
